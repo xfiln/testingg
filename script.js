@@ -1,290 +1,168 @@
-const dataUrl = 'https://raw.githubusercontent.com/dreamliner21/mainDB/master/tebakjkt48.json';
-let data = [];
-let currentMember = null;
-let currentHint = '';
-let currentSession = 1;
-let sessionQuestions = [];
-let sessionTimer;
-let playerScore = 0;
-let sessionScores = [];
+let oshiList = [];
 
-const correctSound = new Audio('https://j.top4top.io/m_3167c3qed1.mp3');
-const incorrectSound = new Audio('https://d.top4top.io/m_3167u9am41.mp3');
+    // Fetching the oshi.json data
+    fetch('oshi.json')
+        .then(response => response.json())
+        .then(data => {
+            oshiList = data;
+        })
+        .catch(error => console.error('Error loading JSON:', error));
 
-document.getElementById('start-btn').addEventListener('click', showNameInput);
-document.getElementById('main-now-btn').addEventListener('click', startGameAfterNameInput);
-document.getElementById('submit-btn').addEventListener('click', checkAnswer);
-document.getElementById('nyerah-btn').addEventListener('click', giveUp);
-document.getElementById('hint-btn').addEventListener('click', showHint);
-document.getElementById('next-btn').addEventListener('click', nextQuestion);
-document.getElementById('prev-btn').addEventListener('click', prevQuestion);
-
-function showNameInput() {
-    document.getElementById('start-btn').classList.add('hidden');
-    document.getElementById('name-input-container').classList.remove('hidden');
-}
-
-function startGameAfterNameInput() {
-    const name = document.getElementById('name-input').value.trim();
-    if (name === '') {
-        Swal.fire({
-            title: 'Peringatan!',
-            text: 'Masukkan nama terlebih dahulu!',
-            icon: 'warning'
-        });
-        return;
+    function pickRandom(list) {
+        return list[Math.floor(Math.random() * list.length)];
     }
 
-    localStorage.setItem('playerName', name);
-    document.getElementById('name-input-container').classList.add('hidden');
-    startCountdown();
-}
+    let isCooldown = false;
 
-async function startCountdown() {
-    document.getElementById('countdown-text').innerText = 'Bersiap untuk bermain';
-    document.getElementById('countdown').innerText = 5;
-    document.getElementById('countdown-container').classList.remove('hidden');
-    
-    const countdownInterval = setInterval(() => {
-        let countdown = parseInt(document.getElementById('countdown').innerText);
-        countdown--;
-        if (countdown > 0) {
-            document.getElementById('countdown').innerText = countdown;
+    document.getElementById('cekButton').addEventListener('click', cekOshi);
+
+    function cekOshi() {
+        if (isCooldown) return;
+
+        const name = document.getElementById('nameInput').value.trim();
+        if (!name) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Ketik namanya dengan benar dan pastikan telah memasukkan nama!',
+            });
+            return;
+        }
+
+        const oshi = pickRandom(oshiList);
+        const imageAvailable = oshi.image !== undefined;
+        const videoAvailable = oshi.video !== undefined;
+
+        const resultContent = document.querySelector('.result-content');
+
+        // Sembunyikan oshi-info dan infoIcon terlebih dahulu
+        resultContent.querySelector('.oshi-info').style.display = 'none';
+        resultContent.querySelector('.oshi-jiko').style.display = 'none';
+        document.getElementById('infoIcon').style.display = 'none';
+
+        resultContent.querySelector('.oshi-info').innerHTML = `
+            <p><b><i class="fas fa-user-circle"></i> Nama: ${name}</b></p>
+            <p><i class="fas fa-heart"></i> Oshi: ${oshi.name}</p>
+            ${imageAvailable ? `<img id="oshiImage" src="${oshi.image}" alt="${oshi.name}" style="display:none;">` : ''}
+            ${videoAvailable ? `<video id="oshiVideo" autoplay loop playsinline src="${oshi.video}" alt="${oshi.name}" style="display:none; width:100%; height:auto;"></video>` : ''}
+        `;
+
+        // Cek apakah jiko ada dalam data oshi
+        const jikoPopup = document.getElementById('jikoPopup');
+        const jikoIndonesia = document.getElementById('jikoIndonesia');
+        const jikoInggris = document.getElementById('jikoInggris');
+
+        if (oshi.jiko && oshi.jiko.jiko_indonesia) {
+            jikoIndonesia.textContent = oshi.jiko.jiko_indonesia;
+            jikoInggris.textContent = oshi.jiko.jiko_inggris;
+            document.getElementById('infoIcon').style.display = 'inline-block'; // Tampilkan icon 'i'
         } else {
-            clearInterval(countdownInterval);
-            document.getElementById('countdown-container').classList.add('hidden');
-            startGame();
+            jikoIndonesia.textContent = "Jiko tidak tersedia.";
+            jikoInggris.textContent = "";
         }
-    }, 1000);
-}
 
-async function startGame() {
-    try {
-        const response = await fetch(dataUrl);
-        data = await response.json();
-        
-        document.getElementById('nyerah-btn').classList.remove('hidden');
-        document.getElementById('hint-btn').classList.remove('hidden');
-        document.getElementById('session-info').classList.remove('hidden');
-        document.getElementById('question-container').classList.remove('hidden');
-        
-        loadSession();
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-}
-
-function loadSession() {
-    if (currentSession <= 8) {
-        sessionQuestions = getRandomQuestions(data, 5);
-        startSessionTimer();
-        loadQuestion();
-    } else {
-        endGame('Selamat! Kamu telah menyelesaikan semua sesi.');
-    }
-}
-
-function getRandomQuestions(data, count) {
-    let questions = [];
-    while (questions.length < count) {
-        const randomIndex = Math.floor(Math.random() * data.length);
-        const question = data[randomIndex];
-        if (!questions.includes(question)) {
-            questions.push(question);
-        }
-    }
-    return questions;
-}
-
-function loadQuestion() {
-    if (sessionQuestions.length > 0) {
-        currentMember = sessionQuestions.shift();
-        document.getElementById('member-img').src = currentMember.img;
-        document.getElementById('jiko-text').innerText = currentMember.jiko;
-        currentHint = generateHint(currentMember.jawaban);
-    } else {
-        endSession();
-    }
-}
-
-function checkAnswer() {
-    const answerInput = document.getElementById('answer-input').value.trim().toUpperCase();
-    const correctAnswer = currentMember.jawaban.toUpperCase();
-
-    if (answerInput === '') {
-        Swal.fire({
-            title: 'Peringatan!',
-            text: 'Masukkan jawaban terlebih dahulu!',
-            icon: 'warning'
+        // Event listener untuk ikon 'i'
+        document.getElementById('infoIcon').addEventListener('click', () => {
+            jikoPopup.style.display = 'flex';
         });
-        return;
-    }
 
-    if (answerInput === correctAnswer) {
-        correctSound.play();
-        playerScore += 10; // Menambahkan skor setiap jawaban benar
-        Swal.fire({
-            title: 'Benar!',
-            text: 'Jawaban kamu benar! +10 Poin',
-            icon: 'success'
+        // Event listener untuk menutup popup ketika tombol 'x' di klik
+        document.querySelector('.close-button').addEventListener('click', () => {
+            jikoPopup.style.display = 'none';
         });
-        loadQuestion();
-    } else {
-        incorrectSound.play();
-        Swal.fire({
-            title: 'Salah!',
-            text: 'Jawabanmu Salah. Jawablah dengan benar',
-            icon: 'error'
-        });
-    }
+        const imageElement = document.getElementById('oshiImage');
+        const videoElement = document.getElementById('oshiVideo');
+        const buttonGroup = document.querySelector('.button-group');
+        const backgroundAudio = document.getElementById('background-audio');
 
-    document.getElementById('answer-input').value = '';
-}
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        loadingSpinner.style.display = 'block';
 
-function showHint() {
-    Swal.fire({
-        title: 'Hint',
-        text: currentHint,
-        icon: 'info'
-    });
-}
+        setTimeout(() => {
+            loadingSpinner.style.display = 'none';
 
-function generateHint(answer) {
-    let hintArray = answer.split('');
-    let hint = '';
-
-    const numToReveal = Math.ceil(answer.length / 2);
-    const indicesToReveal = new Set();
-    
-    while (indicesToReveal.size < numToReveal) {
-        const randomIndex = Math.floor(Math.random() * answer.length);
-        indicesToReveal.add(randomIndex);
-    }
-
-    hintArray.forEach((char, index) => {
-        hint += indicesToReveal.has(index) ? char : '_';
-    });
-
-    return hint;
-}
-
-function startSessionTimer() {
-    const sessionTimerElement = document.getElementById('session-timer');
-    let timeRemaining = 120; // 2 menit
-
-    sessionTimerElement.innerText = timeRemaining;
-
-    sessionTimer = setInterval(() => {
-        timeRemaining--;
-        sessionTimerElement.innerText = timeRemaining;
-
-        if (timeRemaining <= 0) {
-            clearInterval(sessionTimer);
-            endSession();
-        }
-    }, 1000);
-}
-
-function endSession() {
-    clearInterval(sessionTimer);
-    sessionScores.push(playerScore); // Simpan skor sesi ini
-
-    Swal.fire({
-        title: 'Sesi selesai!',
-        text: `Kamu mendapatkan ${playerScore} poin dalam sesi ini.`,
-        icon: 'info',
-        showDenyButton: true,
-        showCancelButton: true,
-        confirmButtonText: 'Lanjutkan ke sesi berikutnya',
-        denyButtonText: 'Nyerah'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            currentSession++;
-            playerScore = 0; // Reset skor untuk sesi berikutnya
-            if (currentSession <= 8) {
-                document.getElementById('session-info').querySelector('#session-number').innerText = currentSession;
-                startCountdown();  // Mulai sesi berikutnya dengan countdown
-            } else {
-                endGame('Selamat! Kamu telah menyelesaikan semua sesi.');
+            if (imageAvailable && videoAvailable) {
+                buttonGroup.style.display = 'flex';
+                document.getElementById('showImageButton').addEventListener('click', () => {
+                    imageElement.style.display = 'block';
+                    videoElement.style.display = 'none';
+                    videoElement.pause();
+                });
+                // Menampilkan video dan memastikan video diputar
+                document.getElementById('showVideoButton').addEventListener('click', () => {
+                    videoElement.style.display = 'block';
+                    videoElement.play();  // Memastikan video diputar saat ditampilkan
+                    imageElement.style.display = 'none';
+                    backgroundAudio.pause();
+                });
+            } else if (imageAvailable) {
+                imageElement.style.display = 'block';
+                                buttonGroup.style.display = 'none';
+            } else if (videoAvailable) {
+                videoElement.style.display = 'block';
+                videoElement.play(); // Memastikan video diputar
+                buttonGroup.style.display = 'none';
+                backgroundAudio.pause();  // Menghentikan background-audio
             }
-        } else if (result.isDenied) {
-            giveUp();
+
+            // Tampilkan oshi-info dan oshi-jiko setelah hasil diproses
+            resultContent.querySelector('.oshi-info').style.display = 'block';
+            resultContent.querySelector('.oshi-jiko').style.display = 'block';
+        }, 1000);
+
+        // Memastikan audio diputar saat tombol cekButton diklik
+        backgroundAudio.play().catch(error => {
+            console.error("Audio play failed: ", error);
+        });
+
+        // Event listener untuk menghentikan/melanjutkan audio latar
+        if (videoElement) {
+            videoElement.addEventListener('play', () => {
+                backgroundAudio.pause();
+            });
+
+            videoElement.addEventListener('pause', () => {
+                backgroundAudio.play();
+            });
+
+            videoElement.addEventListener('ended', () => {
+                backgroundAudio.play();
+            });
         }
+
+        isCooldown = true;
+        const cekButton = document.getElementById('cekButton');
+        cekButton.classList.add('cooldown');
+        cekButton.disabled = true;
+        let cooldownTime = 1;
+        cekButton.innerHTML = `Cek (${cooldownTime})`;
+        const interval = setInterval(() => {
+            cooldownTime -= 1;
+            cekButton.innerHTML = `Cek (${cooldownTime})`;
+            if (cooldownTime <= 0) {
+                clearInterval(interval);
+                isCooldown = false;
+                cekButton.classList.remove('cooldown');
+                cekButton.disabled = false;
+                cekButton.innerHTML = '<i class="fas fa-search"></i> Cek';
+            }
+        }, 1000);
+    }
+
+    // Memastikan audio berjalan dengan benar saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', () => {
+    // Menyembunyikan icon 'i' pada awal halaman dimuat
+    document.getElementById('infoIcon').style.display = 'none';
+
+    const audio = document.getElementById('background-audio');
+    const sources = audio.getElementsByTagName('source');
+    let currentTrack = 0;
+    audio.volume = 1;
+    audio.addEventListener('ended', () => {
+        currentTrack = (currentTrack + 1) % sources.length;
+        audio.src = sources[currentTrack].src;
+        audio.play().catch(error => {
+            console.error("Audio play failed: ", error);
+        });
     });
-}
-
-function nextQuestion() {
-    if (currentQuestionIndex < sessionQuestions.length - 1) {
-        currentQuestionIndex++;
-        loadQuestion();
-    }
-}
-
-function prevQuestion() {
-    if (currentQuestionIndex > 0) {
-        currentQuestionIndex--;
-        loadQuestion();
-    }
-}
-
-function updateNavigationButtons() {
-    document.getElementById('prev-btn').disabled = (currentQuestionIndex === 0);
-    document.getElementById('next-btn').disabled = (currentQuestionIndex === sessionQuestions.length - 1);
-}
-
-function giveUp() {
-    Swal.fire({
-        title: 'Nyerah?',
-        text: "Kamu akan kembali ke halaman awal. Poin yang sudah didapat akan dihitung.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Ya, nyerah!',
-        cancelButtonText: 'Tidak, lanjut!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            endGame(`Permainan berakhir! Skor akhir kamu adalah: ${calculateTotalScore()} poin.`);
-        }
-    });
-}
-
-function endGame(message) {
-    Swal.fire({
-        title: 'Permainan selesai!',
-        html: `
-            ${message}
-            <br><br>
-            <strong>Poin yang diraih:</strong><br>
-            ${sessionScores.map((score, index) => `Sesi ${index + 1}: ${score} poin`).join('<br>')}
-            <br><br>
-            <strong>Total Poin: ${calculateTotalScore()} poin</strong>
-        `,
-        icon: 'success',
-        confirmButtonText: 'Kembali ke Halaman Awal'
-    }).then(() => resetGame());
-}
-
-function calculateTotalScore() {
-    return sessionScores.reduce((total, score) => total + score, 0);
-}
-
-function resetGame() {
-    document.getElementById('start-btn').classList.remove('hidden');
-    document.getElementById('name-input-container').classList.add('hidden');
-    document.getElementById('session-info').classList.add('hidden');
-    document.getElementById('question-container').classList.add('hidden');
-    document.getElementById('nyerah-btn').classList.add('hidden');
-    document.getElementById('hint-btn').classList.add('hidden');
-    document.getElementById('prev-btn').classList.add('hidden');
-    document.getElementById('next-btn').classList.add('hidden');
-    document.getElementById('answer-input').value = '';
-    document.getElementById('member-img').src = '';
-    document.getElementById('jiko-text').innerText = '';
-    document.getElementById('countdown-container').classList.add('hidden');
-    currentSession = 1;
-    playerScore = 0;
-    sessionScores = [];
-    sessionQuestions = [];
-    if (sessionTimer) {
-        clearInterval(sessionTimer);
-    }
-}
+});

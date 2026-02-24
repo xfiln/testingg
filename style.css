@@ -1,201 +1,177 @@
-/* Gaya Umum */
 body {
-    font-family: 'Roboto', sans-serif;
+    background-image: url('https://telegra.ph/file/a3588bee525b657062eb2.jpg');
+    background-size: cover;
+    background-position: center;
+    color: #f0f0f0;
+    font-family: 'Arial', sans-serif;
+    height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: #f5f6f7; /* Latar belakang yang lebih terang untuk kontras */
     margin: 0;
     overflow: hidden;
 }
 
-.game-container {
+.container {
+    background-color: rgba(0, 0, 0, 0.85);
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 600px;
     text-align: center;
-    background-color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.input-box h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #e0e0e0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.result-box {
+    position: relative;
+}
+
+.result-content {
+    margin-top: 5px;
+    text-align: center;
+}
+
+.result-box img, .result-box video {
+    width: 100%;
+    height: 50vh;
+    border-radius: 10px;
+    margin-top: 10px;
+    display: none;
+    cursor: not-allowed;
+}
+
+.result-box img:hover, .result-box video:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+.loading-spinner {
+    display: none;
+    width: 40px;
+    height: 40px;
+    border: 8px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+.oshi-info {
+    display: none;
+    color: #e0e0e0;
+    font-size: 1.2rem;
+    margin-top: 10px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Gaya untuk ikon info 'i' */
+    #infoIcon {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.5em;
+        cursor: pointer;
+    }
+
+/* Gaya untuk popup jiko */
+.jiko-popup {
+    display: none; /* Disembunyikan secara default */
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 80%;
+    max-width: 400px;
+    background-color: rgba(0, 0, 0, 0.85);
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    animation: slideIn 1s ease-out;
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateY(-100vh);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-/* Animasi Countdown */
-@keyframes countdownAnimation {
-    0% {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    50% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-}
-
-/* Animasi Sesi dan Pertanyaan */
-@keyframes slideIn {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideOut {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(100%);
-    }
-}
-
-/* Gaya Umum Elemen */
-.hidden {
-    display: none;
-}
-
-input, button {
-    margin-top: 10px;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-size: 16px;
-    border: 1px solid #ced4da;
-}
-
-input {
-    width: 80%;
-    background-color: #ffffff;
-}
-
-button {
-    color: #ffffff;
-    border: none;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-button:focus {
-    outline: none;
-}
-
-button:hover {
-    transform: translateY(-2px);
-}
-
-button:active {
-    transform: translateY(0);
-}
-
-/* Gaya Tombol */
-#submit-btn {
-    background-color: #6c757d; /* Warna abu-abu sedang */
-}
-
-#submit-btn:hover {
-    background-color: #5a6268; /* Abu-abu gelap saat hover */
-}
-
-#hint-btn {
-    background-color: #343a40; /* Warna abu-abu tua */
-}
-
-#hint-btn:hover {
-    background-color: #212529; /* Abu-abu lebih gelap saat hover */
-}
-
-#nyerah-btn {
-    background-color: #adb5bd; /* Warna abu-abu terang */
-}
-
-#nyerah-btn:hover {
-    background-color: #868e96; /* Abu-abu sedang saat hover */
-}
-
-/* Gaya Tombol Next dan Previous */
-#next-btn, #prev-btn {
-    background-color: #007bff; /* Biru Bootstrap */
-    color: #ffffff;
-    margin: 10px;
-}
-
-#next-btn:hover, #prev-btn:hover {
-    background-color: #0056b3; /* Biru lebih gelap saat hover */
-}
-
-#prev-btn {
-    background-color: #6c757d; /* Abu-abu sedang untuk tombol Previous */
-}
-
-#prev-btn:hover {
-    background-color: #5a6268; /* Abu-abu gelap saat hover */
-}
-
-/* Info dan Hasil */
-#session-info {
+    color: #fff;
     text-align: center;
-    font-size: 1.2rem;
-    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
-#result-message {
-    font-size: 18px;
-    font-weight: bold;
-    animation: popIn 0.5s ease-out;
-}
-
-@keyframes popIn {
-    0% {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-#member-img {
-    width: 100%;
-    max-width: 300px;
-    height: auto;
-    max-height: 300px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    animation: fadeIn 1s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-#jiko-text {
+.jiko-content p {
     margin: 10px 0;
-    animation: fadeIn 1.5s ease-in-out;
 }
 
-/* Tombol Navigasi Pertanyaan */
-.question-navigation {
+#jikoPopup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#jikoPopup .popup-content {
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.85);
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 90%;
+}
+
+#jikoPopup .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.button-group {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
+}
+
+.button-group button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #444;
+    color: #fff;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.button-group button:hover {
+    background-color: #555;
+    transform: translateY(-2px);
+}
+
+.footer {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: white;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
