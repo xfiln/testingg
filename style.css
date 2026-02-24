@@ -1,0 +1,201 @@
+/* Gaya Umum */
+body {
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f5f6f7; /* Latar belakang yang lebih terang untuk kontras */
+    margin: 0;
+    overflow: hidden;
+}
+
+.game-container {
+    text-align: center;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    animation: slideIn 1s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-100vh);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Animasi Countdown */
+@keyframes countdownAnimation {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* Animasi Sesi dan Pertanyaan */
+@keyframes slideIn {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Gaya Umum Elemen */
+.hidden {
+    display: none;
+}
+
+input, button {
+    margin-top: 10px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    border: 1px solid #ced4da;
+}
+
+input {
+    width: 80%;
+    background-color: #ffffff;
+}
+
+button {
+    color: #ffffff;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:focus {
+    outline: none;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Gaya Tombol */
+#submit-btn {
+    background-color: #6c757d; /* Warna abu-abu sedang */
+}
+
+#submit-btn:hover {
+    background-color: #5a6268; /* Abu-abu gelap saat hover */
+}
+
+#hint-btn {
+    background-color: #343a40; /* Warna abu-abu tua */
+}
+
+#hint-btn:hover {
+    background-color: #212529; /* Abu-abu lebih gelap saat hover */
+}
+
+#nyerah-btn {
+    background-color: #adb5bd; /* Warna abu-abu terang */
+}
+
+#nyerah-btn:hover {
+    background-color: #868e96; /* Abu-abu sedang saat hover */
+}
+
+/* Gaya Tombol Next dan Previous */
+#next-btn, #prev-btn {
+    background-color: #007bff; /* Biru Bootstrap */
+    color: #ffffff;
+    margin: 10px;
+}
+
+#next-btn:hover, #prev-btn:hover {
+    background-color: #0056b3; /* Biru lebih gelap saat hover */
+}
+
+#prev-btn {
+    background-color: #6c757d; /* Abu-abu sedang untuk tombol Previous */
+}
+
+#prev-btn:hover {
+    background-color: #5a6268; /* Abu-abu gelap saat hover */
+}
+
+/* Info dan Hasil */
+#session-info {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-top: 20px;
+}
+
+#result-message {
+    font-size: 18px;
+    font-weight: bold;
+    animation: popIn 0.5s ease-out;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+#member-img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    max-height: 300px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#jiko-text {
+    margin: 10px 0;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+/* Tombol Navigasi Pertanyaan */
+.question-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
